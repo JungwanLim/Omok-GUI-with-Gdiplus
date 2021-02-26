@@ -28,7 +28,7 @@ IDR_MENU1 MENU
         }
         MENUITEM "Quit", IDM_QUIT
     }
-    POPUP "Help"
+    POPUP "About"
     {
         MENUITEM "Help", IDM_HELP
         MENUITEM "Version", IDM_VERSION
