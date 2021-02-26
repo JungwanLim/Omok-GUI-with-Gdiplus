@@ -1,6 +1,6 @@
 #include "Omok.h"
 
-COmok::COmok(CDraw *pDraw):pDraw(pDraw)
+COmok::COmok(HWND hwndDlg, CDraw *pDraw):hwndDlg(hwndDlg), pDraw(pDraw)
 {
 	pData = new CData(pDraw);
 }
@@ -10,16 +10,12 @@ COmok::~COmok()
 	delete pData;
 }
 
-void COmok::SetHwnd(HWND hwndDlg)
-{
-	this->hwndDlg = hwndDlg;
-}
-
 void COmok::PutStone(Position p)
 {
 	if(!pData->isOccupied(p))
 	{
-		pData->SetCoords(BlackStone);
+		//MessageBox(hwndDlg, "Test", "Test", MB_OK);
+		pData->SetCoords();
 		pData->SetBoard(BlackStone);
 		pDraw->UpdateBoard();
 	}

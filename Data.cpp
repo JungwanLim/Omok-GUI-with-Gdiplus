@@ -55,23 +55,26 @@ bool CData::GetCoord(Position p)
 	return false;
 }
 
-Position CData::GetBoardIndex(Position p)
+void CData::GetBoardIndex()
 {
-	Position pos;
-	pos.x = (p.x - 16) / 32;
-	pos.y = (p.y - 4) / 32;
-	return pos;
+	index.x = (Coord.x - 16) / boxSize;
+	index.y = (Coord.y - 4) / boxSize;
+/*	
+	char temp[256];
+	sprintf(temp, "x = %d, y = %d", index.x, index.y);
+	MessageBox(nullptr, temp, "index test", MB_OK);
+*/
 }
 
-void CData::SetCoords(short stone)
+void CData::SetCoords()
 {
 	pCoords->push_back(Position(Coord.x + 1, Coord.y + 1));
 }
 
 bool CData::isOccupied(Position p)
 {
-	if(GetCoord(p)) return false;
-	index = GetBoardIndex(Coord);
+	if(!GetCoord(p)) return true;
+	GetBoardIndex();
 	return board[index.y][index.x];
 }
 

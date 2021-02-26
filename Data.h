@@ -31,11 +31,11 @@ class CData{
 		void Redo();
 		void RedoAll();
 		void SetBoard(short stone);
-		void SetCoords(short stone);
+		void SetCoords();
 
 		bool isOccupied(Position p);
 		bool GetCoord(Position p);
-		Position GetBoardIndex(Position p);
+		void GetBoardIndex();
 };
 
 #endif

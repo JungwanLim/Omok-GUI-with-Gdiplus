@@ -61,6 +61,8 @@ class CDraw{
 		Image *pWhite_a;
 		Image *pImages[5];
 
+		Bitmap *pBit;
+		Graphics *memG;
 		CGdiPlusStarter g_gps;
 		Graphics *pGraphic;
 		CachedBitmap *pCBit;
@@ -69,13 +71,14 @@ class CDraw{
 		vector<Position> coords;
 		
 	public :
-		CDraw();
+		CDraw(HWND hwndDlg);
 		~CDraw();
 		
 		void DrawStone(short x, short y, short type);
 		void DrawBoard();
+		void ShowNumber();
 		void OnPaint(HDC hdc);
-		void SetHwnd(HWND hwndDlg);
+		void SetGraphics();
 		void UpdateBoard();
 		bool InitGdiplus();
 		

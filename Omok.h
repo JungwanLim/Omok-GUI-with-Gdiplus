@@ -12,11 +12,10 @@ class COmok{
 		HWND hwndDlg;
 		
 	public:
-		COmok(CDraw *pDraw);
+		COmok(HWND hwndDlge, CDraw *pDraw);
 		~COmok();
 		
 		void PutStone(Position p);
-		void SetHwnd(HWND hwndDlg);
 };
 
 #endif

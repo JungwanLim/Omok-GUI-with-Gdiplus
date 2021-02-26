@@ -2,8 +2,8 @@
 
 HINSTANCE hInst;
 HMENU hMenu;
-CDraw draw;
-COmok omok(&draw);
+CDraw *pDraw;
+COmok *pOmok;
 
 BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -13,15 +13,19 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     switch(uMsg)
     {
+    	
     case WM_INITDIALOG:
-    {
-	    draw.SetHwnd(hwndDlg);
-	    omok.SetHwnd(hwndDlg);
+    { 
+    	pDraw = new CDraw(hwndDlg);
+	    pDraw->InitGdiplus();
+		pOmok = new COmok(hwndDlg, pDraw);
     }
     return TRUE;
 
     case WM_CLOSE:
     {
+    	delete pOmok;
+    	delete pDraw;
         EndDialog(hwndDlg, 0);
         break;
     }
@@ -31,7 +35,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		short xPos = LOWORD(lParam);
 		short yPos = HIWORD(lParam);
-		omok.PutStone(Position(xPos, yPos));
+		pOmok->PutStone(Position(xPos, yPos));
 		return 0;
 	}
 
@@ -44,13 +48,16 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 break;
         }
     }
+    
 	case WM_PAINT:
 		hdc=BeginPaint(hwndDlg, &ps);
-		draw.OnPaint(hdc);
+		pDraw->OnPaint(hdc);
 		EndPaint(hwndDlg, &ps);
 		return 0;
-    return TRUE;
+    
+	return TRUE;
     }
+    
     return FALSE;
 }
 
@@ -59,9 +66,5 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 {
     hInst=hInstance;
     InitCommonControls();
-    if(!draw.InitGdiplus())
-    {
-    	return false;
-	}
     return DialogBox(hInst, MAKEINTRESOURCE(IDD_MAINDLG), NULL, (DLGPROC)DlgMain);
 }
