@@ -11,6 +11,24 @@
 
 
 //
+// Toolbar resources
+//
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+IDR_TOOLBAR1 TOOLBAR 16, 15
+{
+}
+
+
+
+//
+// Bitmap resources
+//
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+IDR_TOOLBAR1       BITMAP         "bitmap1.bmp"
+
+
+
+//
 // Menu resources
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
@@ -28,7 +46,16 @@ IDR_MENU1 MENU
         }
         MENUITEM "Quit", IDM_QUIT
     }
-    POPUP "About"
+    POPUP "Player"
+    {
+        MENUITEM "Computer Black", IDM_COM_BLACK
+        MENUITEM "Computer White", IDM_COM_WHITE
+    }
+    POPUP "View"
+    {
+        MENUITEM "Number", IDM_NUMBER, CHECKED
+    }
+    POPUP "Help"
     {
         MENUITEM "Help", IDM_HELP
         MENUITEM "Version", IDM_VERSION
@@ -43,10 +70,35 @@ IDR_MENU1 MENU
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 IDD_MAINDLG DIALOG 0, 0, 550, 309
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_GROUP | WS_POPUP | WS_SYSMENU
-CAPTION "Dialog"
+CAPTION "Omok"
 MENU IDR_MENU1
-FONT 8, "Ms Shell Dlg"
+FONT 9, "Ms Shell Dlg"
 {
-    EDITTEXT        IDC_DISPLAY, 355, 2, 167, 239, ES_AUTOHSCROLL | ES_MULTILINE | ES_READONLY, WS_EX_LEFT
-    EDITTEXT        IDC_EDIT, 355, 245, 167, 16, ES_AUTOHSCROLL, WS_EX_LEFT
+    EDITTEXT        IDC_DISPLAY, 335, 21, 213, 265, ES_AUTOHSCROLL | ES_MULTILINE | ES_READONLY, WS_EX_LEFT
+    EDITTEXT        IDC_EDIT, 335, 291, 213, 16, ES_AUTOHSCROLL, WS_EX_LEFT
+    PUSHBUTTON      "Undo", IDC_UNDO, 335, 3, 44, 14, 0, WS_EX_LEFT
+    PUSHBUTTON      "Undo All", IDC_UNDOALL, 389, 3, 44, 14, 0, WS_EX_LEFT
+    PUSHBUTTON      "Redo", IDC_REDO, 443, 3, 44, 14, 0, WS_EX_LEFT
+    PUSHBUTTON      "Redo All", IDC_REDOALL, 497, 3, 44, 14, 0, WS_EX_LEFT
 }
+
+
+
+//
+// String Table resources
+//
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+STRINGTABLE
+{
+    IDS_UNDO                      "Undo"
+    IDS_UNDOALL                   "Undo All"
+    IDS_REDO                      "Redo"
+}
+
+
+
+//
+// Manifest resources
+//
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+1                  RT_MANIFEST    ".\\manifest.xml"

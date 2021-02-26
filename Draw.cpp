@@ -8,6 +8,8 @@ CDraw::CDraw(HWND hwndDlg) : hwndDlg(hwndDlg)
 	pImages[2] = pBlack_a = Image::FromFile(L".\\Image\\Black_a.png");
 	pImages[3] = pWhite_a = Image::FromFile(L".\\Image\\White_a.png");
 	pImages[4] = pForbidden = Image::FromFile(L".\\Image\\forbidden.png");
+	SetGraphics();
+	isShowNumber = true;
 }
 
 CDraw::~CDraw()
@@ -26,17 +28,11 @@ CDraw::~CDraw()
 	}
 }
 
-bool CDraw::InitGdiplus()
+void CDraw::SetShowNumber(bool isShow)
 {
-	g_gps = CGdiPlusStarter();
-	if (g_gps.m_bSuccess == FALSE) {
-		MessageBox(NULL,TEXT("GDI+ 라이브러리를 초기화할 수 없습니다."),
-			TEXT("알림"),MB_OK);
-		SendMessage(hwndDlg, WM_CLOSE, 0, 0);
-		return false;
-	}
-	SetGraphics();
-	return true;
+	isShowNumber = isShow;
+	DrawStone(true);
+	UpdateBoard();
 }
 
 void CDraw::SetGraphics()
@@ -44,28 +40,17 @@ void CDraw::SetGraphics()
 	pGraphic = new Graphics(hwndDlg);
 	pBit = new Bitmap(500, 500, pGraphic);
 	memG = new Graphics(pBit);
+	pCBit = nullptr;
 	DrawBoard();
 	UpdateBoard();
 }
 
 void CDraw::UpdateBoard()
 {
-	int stone = 0;
-	Position p;
-	if(!coords.empty())
-	{
-		for(; stone < coords.size() - 1; ++stone)
-		{
-			p = coords[stone];
-			memG->DrawImage(pImages[stone % 2], p.x, p.y);
-		}
-		p = coords[stone];
-		memG->DrawImage(pImages[stone % 2 + 2], p.x, p.y);
-		ShowNumber();
-	}
 	if (pCBit) 
 	{
-	  delete pCBit;
+		delete pCBit;
+		pCBit = nullptr;
 	}
 	pCBit = new CachedBitmap(pBit,pGraphic);
 	InvalidateRect(hwndDlg,NULL,FALSE);
@@ -76,14 +61,27 @@ void CDraw::DrawBoard()
 	memG->DrawImage(pBoard,0,0);
 }
 
-void CDraw::DrawStone(short x, short y, short type)
+void CDraw::DrawStone(bool isAll)
 {
-	memG->DrawImage(pImages[type], x, y);
+	Position p;
+	int stone = 0;
+	!isAll && coords.size() > 2 ? stone = coords.size() - 2 : 0;
+	if(!coords.empty())
+	{
+		for(; stone < coords.size() - 1; ++stone)
+		{
+			p = coords[stone];
+			memG->DrawImage(pImages[stone % 2], p.x, p.y);
+		}
+		p = coords[stone];
+		isShowNumber ? stone %= 2 : stone = stone % 2 + 2;
+		memG->DrawImage(pImages[stone], p.x, p.y);
+		if(isShowNumber) ShowNumber(isAll);
+	}
 }
 
-void CDraw::ShowNumber()
+void CDraw::ShowNumber(bool isAll)
 {
-
 	Font F(L"Arial",13,FontStyleBold,UnitPixel);
 	SolidBrush W(Color(0,0,0));
 	SolidBrush B(Color(255,255,255));
@@ -95,6 +93,7 @@ void CDraw::ShowNumber()
 
     wchar_t wNum[10];
 	int i = 0;
+	!isAll && coords.size() > 2 ? i = coords.size() - 2 : 0;
     for(; i < coords.size(); ++i)
     {
         PointF P(coords[i].x + 15.0, coords[i].y + 7);
@@ -108,7 +107,6 @@ void CDraw::ShowNumber()
 	        memG->DrawString(wNum,-1,&F,P,&SF,pB[i%2]);
 		}
     }
-    
 }
 
 void CDraw::OnPaint(HDC hdc)

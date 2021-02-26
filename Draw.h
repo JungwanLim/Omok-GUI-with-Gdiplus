@@ -35,24 +35,10 @@ struct Position{
 	}
 };
 
-class CGdiPlusStarter
-{
-private:
-	ULONG_PTR m_gpToken;
-
-public:
-	bool m_bSuccess;
-	CGdiPlusStarter() {
-		GdiplusStartupInput gpsi;
-		m_bSuccess=(GdiplusStartup(&m_gpToken,&gpsi,NULL) == Ok);
-	}
-	~CGdiPlusStarter() {
-		GdiplusShutdown(m_gpToken);
-	}
-};
-
 class CDraw{
 	private :
+		bool isShowNumber;
+		
 		Image *pBoard;
 		Image *pBlack;
 		Image *pWhite;
@@ -63,7 +49,6 @@ class CDraw{
 
 		Bitmap *pBit;
 		Graphics *memG;
-		CGdiPlusStarter g_gps;
 		Graphics *pGraphic;
 		CachedBitmap *pCBit;
 		HWND hwndDlg;
@@ -74,13 +59,13 @@ class CDraw{
 		CDraw(HWND hwndDlg);
 		~CDraw();
 		
-		void DrawStone(short x, short y, short type);
+		void DrawStone(bool isAll = false);
 		void DrawBoard();
-		void ShowNumber();
+		void ShowNumber(bool isAll = false);
 		void OnPaint(HDC hdc);
 		void SetGraphics();
 		void UpdateBoard();
-		bool InitGdiplus();
+		void SetShowNumber(bool isShow);
 		
 		vector<Position>* GetCoords() { return &coords; }
 };

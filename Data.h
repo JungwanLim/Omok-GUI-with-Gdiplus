@@ -8,10 +8,16 @@
 #define boxSize 32
 #define boardSize 500
 
+enum{ Empty, BlackStone, WhiteStone};
+
 class CData{
 	private:
 		short board[boardLine][boardLine];
-		Position Coord;
+		short (*pBoard)[boardLine];
+		short stoneCount;
+		short currentStone;
+		
+		Position coord;
 		Position index;
 		
 		vector<Position> pixelCoords;
@@ -24,18 +30,24 @@ class CData{
 		CData(CDraw *draw);
 		~CData();
 		
-		void InitBoard();
-		void SetPixelCoords();
+		void InitGame();
 		void Undo();
 		void UndoAll();
 		void Redo();
 		void RedoAll();
 		void SetBoard(short stone);
 		void SetCoords();
-
+		void DrawStone(bool isRedo = true);
 		bool isOccupied(Position p);
-		bool GetCoord(Position p);
+		short (*GetBoard())[boardLine];
+		short GetCurrentStone();
+		Position GetIndex();
+		
+	private :
+		void InitBoard();
+		void SetPixelCoords();
 		void GetBoardIndex();
+		bool GetCoord(Position p);
 };
 
 #endif
