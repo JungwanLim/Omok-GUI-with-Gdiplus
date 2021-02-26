@@ -13,10 +13,10 @@
 //
 // Toolbar resources
 //
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-IDR_TOOLBAR1 TOOLBAR 16, 15
-{
-}
+//LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+//IDR_TOOLBAR1 TOOLBAR 16, 15
+//{
+//}
 
 
 
@@ -54,6 +54,7 @@ IDR_MENU1 MENU
     POPUP "View"
     {
         MENUITEM "ShowNumber", IDM_NUMBER, CHECKED
+        MENUITEM "ShowForbidden", IDM_FORBIDDEN, CHECKED 
     }
     POPUP "Help"
     {

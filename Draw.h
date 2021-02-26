@@ -20,7 +20,7 @@
 using namespace Gdiplus;
 using namespace std;
 
-enum {DRAWONE, DRAWALL};
+enum{ Empty, BlackStone, WhiteStone};
 
 struct Position{
 	int x, y;
@@ -57,13 +57,16 @@ class CDraw{
 		CDraw(HWND hwndDlg);
 		~CDraw();
 		
-		void DrawStone(bool isAll = false); // 돌을 그리는 함수 
+		void DrawStone(); // 돌을 그리는 함수 
 		void DrawBoard(); // 보드를 그리는 하수 
-		void ShowNumber(bool isAll = false); // 번호를 넣어주는 함수 
+		void DrawForbidden(vector<Position> &forbiddenPoints);
+		void ShowNumber(); // 번호를 넣어주는 함수 
 		void OnPaint(HDC hdc); // WM_PAINT 이벤트가 발생하면 호출 됨(화면 갱신) 
 		void SetGraphics(); //Graphics 관련 변수(더블 버퍼링을 위한)들을 초기화 
 		void UpdateBoard(); // 화면을 갱신 해주기위한 변수 
 		void SetShowNumber(); //메뉴에서 선택이 되면 변수 변경 
+		void ShowEndMsg(short stone);
+		void ShowMsg(const char *msg);
 		
 		vector<Position>* GetCoords() { return &coords; } // Data class에 주소를 넘겨줌 
 		RectF GetStringInfo(wchar_t *wStr, Position p, int size, int num); //번호를 넣기 위한 함수 

@@ -1,10 +1,10 @@
 #include "Data.h"
 
-CData::CData(CDraw *pDraw) : pDraw(pDraw)
+CData::CData(CDraw *pDraw, CRule *pRule) : pDraw(pDraw), pRule(pRule)
 {
 	SetPixelCoords();
 	this->pCoords = pDraw->GetCoords();
-	pBoard = board;
+	pRule->SetBoard(board);
 	InitGame();
 }
 
@@ -14,10 +14,16 @@ CData::~CData()
 
 void CData::InitGame()
 {
-	InitBoard();
+	isGameOver = false;
 	pCoords->clear();
 	redo.clear();
+	ClearBoard();
+}
+
+void CData::ClearBoard()
+{
 	turn = BlackStone;
+	InitBoard();
 	pDraw->DrawBoard();
 	pDraw->UpdateBoard(); // 필요한 변수들을 초기화 하고 보드를 그려 화면에 보여줌 
 }
@@ -52,16 +58,6 @@ short *CData::GetCurrentStone()
 	return &turn;
 }
 
-Position CData::GetIndex()
-{
-	return index;
-}
-
-short (*CData::GetBoard())[boardLine] // 배열 포인터를 넘기기 위한 함수 
-{
-	return pBoard;
-}
-
 void CData::SetBoard(short stone)
 {
 	board[index.y][index.x] = stone;
@@ -91,10 +87,14 @@ void CData::SetCoords() //줄 간격은 32이고, 돌의 크기는 30이므로 + 1씩 해서 저장
 	pCoords->push_back(Position(coord.x + 1, coord.y + 1));
 }
 
-bool CData::isOccupied(Position p)
+bool CData::isOccupied(Position p, short mode)
 {
 	if(!GetCoord(p)) return true; // 보드 밖이면 돌을 놓을 수 없으므로 돌이 있는 것과 마찬가지로 true를 반환 
 	GetBoardIndex(); // 오목판 안이면 보드의 좌표를 찾는다. 
+	if(!board[index.y][index.x] && mode == RENJU && turn == BlackStone)
+	{
+		return pRule->ForbiddenPoint(index.x, index.y, turn, true);
+	}
 	return board[index.y][index.x]; // 보드가 차 있으면 1 이상으로 true, 비었으면 0이므로 false 반환 
 }
 
@@ -103,24 +103,35 @@ void CData::ResetRedo()
 	if(!redo.empty()) redo.clear();
 }
 
-void CData::DrawStone(short stone, bool isAll) // 바둑판에 돌을 그린다. 
+void CData::CheckForbidden()
+{
+	pRule->GetForbiddenPoint(forbidden, turn);
+	for(auto& p : forbidden)
+	{
+		p.x = p.x * boxSize + 16 + 1;
+		p.y = p.y * boxSize + 4 - 1;
+	}
+	pDraw->DrawForbidden(forbidden);
+}
+
+void CData::DrawStone(short stone, short mode, bool checkGame) // 바둑판에 돌을 그린다. 
 {
 	GetBoardIndex(); // 바둑판에 돌을 글릴 때는 항상 보드에도 표시를 해줘야함 
 	SetBoard(stone);
-	pDraw->DrawStone(isAll);
+	pDraw->DrawStone();
 	turn = 3 - turn; // 돌을 바꿔주고 
+	if(mode && turn == BlackStone) CheckForbidden();
 	pDraw->UpdateBoard(); // 화면을 갱신(화면에 반영)해준다. 
+	if(checkGame)CheckGameOver();
 }
 
-void CData::Undo()
+void CData::Undo(short mode)
 {
 	if(pCoords->empty()) return;
 	
-	Position p = coord = pCoords->back(); // coords에서 redo로 좌표정보를 이동해준다. 
+	redo.push_back(coord = pCoords->back()); // coords에서 redo로 좌표정보를 이동해준다. 
 	pCoords->pop_back(); // 벡터에서는 데이터을 읽고 빼내는 함수가 따로 있으모로 제거를 위해서는 반드시 이 작업을 해줘야 함 
-	redo.push_back(p);
-	pDraw->DrawBoard();
-	DrawStone(Empty, DRAWALL); // Undo 할 때는 바둑판에서 돌이 하나 없어지므로 보드부터 다시 그려줘야 함 
+	DrawStone(Empty, mode, false); // Undo 할 때는 바둑판에서 돌이 하나 없어지므로 보드부터 다시 그려줘야 함 
 }
 
 void CData::UndoAll()
@@ -132,33 +143,43 @@ void CData::UndoAll()
 		redo.push_back(pCoords->back()); // 돌의 좌표정보를 redo로 전부 옮기고 
 		pCoords->pop_back();
 	}
-	
-	turn = BlackStone;
-	InitBoard();
-	pDraw->DrawBoard();
-	pDraw->UpdateBoard(); // 필요한 변수를 초기 값으로 바꿔 보드만 그려준다. 
+	ClearBoard();
 }
 
-void CData::Redo()
+void CData::Redo(short mode)
 {
 	if(redo.empty()) return;
 	
-	Position p = coord = redo.back();
+	pCoords->push_back(coord = redo.back());
 	redo.pop_back();
-	pCoords->push_back(p);
-	DrawStone(turn);
+	DrawStone(turn, mode, false);
 }
 
-void CData::RedoAll()
+void CData::RedoAll(short mode)
 {
 	if(redo.empty()) return;
 	
-	while(!redo.empty())
+	while(redo.size() > 1)
 	{
-		Position p = coord = redo.back();
-		pCoords->push_back(p);
+		pCoords->push_back(coord = redo.back());
 		redo.pop_back();
-		DrawStone(turn);
+		GetBoardIndex(); // 바둑판에 돌을 글릴 때는 항상 보드에도 표시를 해줘야함 
+		SetBoard(turn);
+		turn = 3 - turn;
+	}
+	Redo(mode); // 마지막 돌을 그릴 때는 화면에 전체를 그려줘야 하므로  
+}
+
+void CData::CheckGameOver() // 게임이 끝났는지(승부가 결정이 났는지) 검사하는 함수 
+{
+	if(!isGameOver && pRule->isGameOver(index.x, index.y, 3 - turn))
+	{
+		isGameOver = true;
+		pDraw->ShowEndMsg(3 - turn);
 	}
 }
 
+bool CData::GetGameState()
+{
+	return isGameOver;
+}

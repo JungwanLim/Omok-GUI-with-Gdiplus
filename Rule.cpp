@@ -1,26 +1,26 @@
 #include "Rule.h"
 
-CRule::CRule(CData *pData) : pData(pData)
+CRule::CRule(CDraw *pDraw) : pDraw(pDraw)
 {
-	pBoard = pData->GetBoard();
 }
 
 CRule::~CRule()
 {
 }
 
+void CRule::SetBoard(short (*pBoard)[boardLine])
+{
+	this->pBoard = pBoard;
+}
+
+void CRule::SetStone(short x, short y, short stone)
+{
+	pBoard[y][x] = stone;
+}
+
 bool CRule::isInvalid(short x, short y) // 보드의 유효한 영역인지를 체크 
 {
 	return (x < 0 || x >= boardLine || y < 0 || y >= boardLine);
-}
-
-bool CRule::isGameOver(short x, short y, short stone) // 연속으로 5개 이상의 돌이 놓여 있으면 참을 리턴해줌 
-{
-	for(int i = 0; i < 4; ++i)
-	{
-		if(5 <= GetStoneCount(x, y, stone, i)) return true;
-	}
-	return false;
 }
 
 Position CRule::GetXY(short direction) // 방향 테이블에서 방향에 대한 값을 넘겨 줌 
@@ -49,3 +49,158 @@ short CRule::GetStoneCount(short x, short y, short stone, short direction)//가로
 	}
 	return cnt;
 }
+
+Position *CRule::FindEmptyPoint(short x, short y, short stone, short direction)// 주어진 방향에 공백이 있는지 찾아봅니다. 
+{
+	pos = GetXY(direction); // pos는 멤버 변수. 주소를 넘겨주기 위해 멤버 변수 사용 
+	while(true)
+	{
+		x = x + pos.x, y = y + pos.y; // 주어진 방향(0, 1 또는 -1)으로 한 칸씩 진행
+		if(isInvalid(x, y) || pBoard[y][x] != stone) break; // 같은 돌이 아닐 경우(공백 또는 벽 또는 상대 돌) 
+	}
+	if(!isInvalid(x, y) && pBoard[y][x] == Empty) // 보드 영역 안이며 공백일 때만 
+	{
+		pos = Position(x, y);
+		return &pos; // 공백을 찾지 못했을 경우 nullptr를 넘겨주기 위해서 주소를 사용 
+	}
+	return nullptr; // 공백이 없을 경우 nullptr 리턴 
+}
+
+bool CRule::isGameOver(short x, short y, short stone) // 연속으로 5개 이상의 돌이 놓여 있으면 참을 리턴해줌 
+{
+	for(int i = 0; i < 4; ++i)
+	{
+		if(5 <= GetStoneCount(x, y, stone, i)) return true; // 렌주룰일 경우 흑은 장목을 둘 수 없으므로 이 함수 하나로 흑 백 모두 승부를 판정 할 수 있음 
+	}
+	return false;
+}
+
+bool CRule::isSix(short x, short y, short stone, bool isShowMsg) 
+{
+	for(int i = 0; i < 4; ++i)
+	{
+		if (5 < GetStoneCount(x, y, stone, i)) 
+		{
+			if(isShowMsg)pDraw->ShowMsg("Over Line");//// 금수 자리에 마우스를 클릭했을 때만 메시지 출력
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CRule::isFive(short x, short y, short stone)
+{
+	for(int i = 0; i < 4; ++i)
+	{
+		if (5 == GetStoneCount(x, y, stone, i)) return true;
+	}
+	return false;
+}
+
+bool CRule::isFive(short x, short y, short stone, short direction) // 주어진 방향으로 5가 되는지 검사  
+{
+	return (5 == GetStoneCount(x, y, stone, direction));
+}
+
+bool CRule::isOpenThree(short x, short y, short stone, short direction)
+{
+	Position *pPos, p;
+	for(int i = 0; i < 2; ++i)
+	{
+		pPos = FindEmptyPoint(x, y, stone, direction * 2 + i);
+		if(pPos)
+		{
+			p = *pPos;
+			SetStone(p.x, p.y, stone);
+			if(1 == isOpenFour(p.x, p.y, stone, direction, true))
+			{
+				if(!ForbiddenPoint(p.x, p.y, stone))
+				{
+					SetStone(p.x, p.y, Empty);
+					return true;
+				}
+			}
+			SetStone(p.x, p.y, Empty);
+		}
+	}
+	return false;
+}
+
+short CRule::isOpenFour(short x, short y, short stone, short direction, bool isCHeck)
+{
+	if(isCHeck && isFive(x, y, stone)) return false;
+	
+	Position *p;
+	int cnt = 0;
+	for(int i = 0; i < 2; ++i)
+	{
+		p = FindEmptyPoint(x, y, stone, direction * 2 + i);
+		if(p && isFive(p->x, p->y, stone, direction)) ++cnt;
+	}
+	if(cnt == 2) 
+	{
+		if(4 == GetStoneCount(x, y, stone, direction)) --cnt;
+	}
+	else cnt = 0;
+	
+	return cnt;
+}
+
+bool CRule::isFour(short x, short y, short stone, short direction)
+{
+	Position *p;
+	for(int i = 0; i < 2; ++i)
+	{
+		p = FindEmptyPoint(x, y, stone, direction * 2 + i);
+		if(p && isFive(p->x, p->y, stone, direction)) return true;
+	}
+	return false;
+}
+
+bool CRule::isDoubleThree(short x, short y, short stone, bool isShowMsg)
+{
+	int cnt = 0;
+	SetStone(x, y, stone);
+	for(int i = 0; i < 4; ++i)
+	{
+		if (isOpenThree(x, y, stone, i)) ++cnt;
+	}
+	SetStone(x, y, Empty);
+
+	if(isShowMsg && cnt >= 2)pDraw->ShowMsg("Double Three");
+	return cnt >= 2;
+}
+
+bool CRule::isDoubleFour(short x, short y, short stone, bool isShowMsg)
+{
+	int cnt = 0;
+	SetStone(x, y, stone);
+	for(int i = 0; i < 4; ++i)
+	{
+		if (2 == isOpenFour(x, y, stone, i)) cnt += 2;
+		else if(isFour(x, y, stone, i)) ++cnt;
+	}
+	SetStone(x, y, Empty);
+
+	if(isShowMsg && cnt >= 2)pDraw->ShowMsg("Double Four");
+	return cnt >= 2;
+}
+
+bool CRule::ForbiddenPoint(short x, short y, short stone, bool isShowMsg)
+{
+	if(isFive(x, y, stone)) return false;
+	return (isSix(x, y, stone, isShowMsg) || isDoubleFour(x, y, stone, isShowMsg) || isDoubleThree(x, y, stone, isShowMsg));
+}
+
+void CRule::GetForbiddenPoint(vector<Position> &forbiddenPoints, short stone)
+{
+	for(int y = 0; y < boardLine; ++y)
+	{
+		for(int x = 0; x < boardLine; ++x)
+		{
+			if(pBoard[y][x]) continue;
+			if(ForbiddenPoint(x, y, stone, false)) forbiddenPoints.push_back(Position(x, y));
+		}
+	}
+}
+

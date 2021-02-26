@@ -14,6 +14,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	static int count = 0;
 	HDC hdc;
 	PAINTSTRUCT ps;
     hMenu = GetMenu(hwndDlg);
@@ -57,6 +58,18 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
         	case IDM_NEW :
         		pOmok->InitGame();
+        		break;
+        		
+        	case IDM_FREE_RENJU :
+        		pOmok->SetMode(RENJU);
+        		CheckMenuItem(hMenu, IDM_FREE_RENJU, MF_CHECKED);
+        		CheckMenuItem(hMenu, IDM_GOMOKU, MF_UNCHECKED);
+        		break;
+        		
+        	case IDM_GOMOKU :
+        		pOmok->SetMode(GOMOKU);
+        		CheckMenuItem(hMenu, IDM_FREE_RENJU, MF_UNCHECKED);
+        		CheckMenuItem(hMenu, IDM_GOMOKU, MF_CHECKED);
         		break;
         		
             case IDM_QUIT :
