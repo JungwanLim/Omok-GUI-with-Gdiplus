@@ -61,7 +61,7 @@ void CDraw::DrawBoard()
 	memG->DrawImage(pBoard,0,0); //메모리에 보드를 그려줌 
 }
 
-void CDraw::DrawForbidden(vector<Position> &forbiddenPoints)
+void CDraw::DrawForbidden(vector<Position> &forbiddenPoints) // 금수 자리를 표시해줌 
 {
 	while(!forbiddenPoints.empty())
 	{
@@ -79,15 +79,12 @@ void CDraw::DrawStone()
 	Position p;
 	int stone = 0;
 	
-	// 마지막 돌에 체크가 되어있거나 번호의 색깔이 다르므로 항상 두 개를 그려줘야 함 
-	// 돌 전체를 그리지 않고 하나만 그릴때는 마지막 돌과 마지막 이전 돌만 그리면 되므로 
-	//!isAll && coords.size() > 2 ? stone = coords.size() - 2 : 0; 
 	for(; stone < coords.size() - 1; ++stone)
 	{
 		p = coords[stone];
 		memG->DrawImage(pImages[stone % 2], p.x, p.y);
 	}
-	p = coords[stone];
+	p = coords[stone]; // 마지막 돌은 체크가 된 돌을 그려야 하므로 구분을 두어야 함 
 	isShowNumber ? stone %= 2 : stone = stone % 2 + 2;
 	memG->DrawImage(pImages[stone], p.x, p.y);
 	if(isShowNumber) ShowNumber();
@@ -121,7 +118,7 @@ void CDraw::ShowNumber()
         RectF rect = GetStringInfo(wNum, coords[i], size, i + 1);
         memG->DrawString(wNum,-1,&F,rect,&SF,pB[i%2]);
     }
-    RectF rect = GetStringInfo(wNum, coords[i], size, i + 1);
+    RectF rect = GetStringInfo(wNum, coords[i], size, i + 1);// 마지막 돌의 색깔을 달리 하기 위한 분리 
     memG->DrawString(wNum,-1,&F,rect,&SF,&R);
 }
 
@@ -133,13 +130,24 @@ void CDraw::OnPaint(HDC hdc) // 메모리에 저장된 그림을 그려준다.
 
 void CDraw::ShowEndMsg(short stone) // 승부가 결정이 나면 승자를 메시지 박스와 타이틀 바에 표시해 줌 
 {
-	const char *msg[] = {"Omok - Black Win!!!", "Omok - White Win!!!"};
+	const char *msg[] = {"Omok - Tie", "Omok - Black Win", "Omok - White Win"};
 
-	SetWindowText(hwndDlg, msg[stone - 1]);
-	MessageBox(hwndDlg, msg[stone - 1] + 7, "Game Over", MB_OK | MB_ICONINFORMATION);
+	SetTitle(msg[stone]);
+	MessageBox(hwndDlg, msg[stone] + 7, "Game Over", MB_OK | MB_ICONINFORMATION);
 }
 
 void CDraw::ShowMsg(const char *msg)
 {
 	MessageBox(hwndDlg, msg, "Warning", MB_OK | MB_ICONSTOP);
+}
+
+void CDraw::SetTitle(const char* titleName)
+{
+	SetWindowText(hwndDlg, titleName);
+}
+
+void CDraw::SetTitle(int id)
+{
+	const char *titleName[] = {"Omok - Gomku Rule", "Omok - Renju Rule"};
+	SetWindowText(hwndDlg, titleName[id]);
 }

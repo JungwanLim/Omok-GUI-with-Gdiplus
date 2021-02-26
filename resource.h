@@ -22,7 +22,6 @@
 #define IDM_COM_BLACK                           40008
 #define IDM_COM_WHITE                           40009
 #define IDM_NUMBER                              40010
-#define IDM_FORBIDDEN                           40011
 #define IDS_UNDO                                40100
 #define IDS_UNDOALL                             40101
 #define IDS_REDO                                40102

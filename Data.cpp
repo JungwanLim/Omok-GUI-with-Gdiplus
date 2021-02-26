@@ -172,10 +172,16 @@ void CData::RedoAll(short mode)
 
 void CData::CheckGameOver() // 게임이 끝났는지(승부가 결정이 났는지) 검사하는 함수 
 {
+	short Tie = 0;
 	if(!isGameOver && pRule->isGameOver(index.x, index.y, 3 - turn))
 	{
 		isGameOver = true;
 		pDraw->ShowEndMsg(3 - turn);
+	}
+	else if(pCoords->size() == boardLine * boardLine)
+	{
+		isGameOver = true;
+		pDraw->ShowEndMsg(Tie);
 	}
 }
 

@@ -67,6 +67,8 @@ class CDraw{
 		void SetShowNumber(); //메뉴에서 선택이 되면 변수 변경 
 		void ShowEndMsg(short stone);
 		void ShowMsg(const char *msg);
+		void SetTitle(const char* titleName);
+		void SetTitle(int id);
 		
 		vector<Position>* GetCoords() { return &coords; } // Data class에 주소를 넘겨줌 
 		RectF GetStringInfo(wchar_t *wStr, Position p, int size, int num); //번호를 넣기 위한 함수 

@@ -19,12 +19,13 @@ void COmok::InitGame()
 {
 	isGameOver = false;
 	pData->InitGame();
-	SetWindowText(hwndDlg, TEXT("Omok"));
+	pDraw->SetTitle(mode);
 }
 
 void COmok::SetMode(short mode)
 {
 	this->mode = mode;
+	pDraw->SetTitle(mode);
 }
 
 void COmok::PutStone(Position p) // 돌을 놓기 위한 함수 

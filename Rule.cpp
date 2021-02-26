@@ -111,10 +111,10 @@ bool CRule::isOpenThree(short x, short y, short stone, short direction)
 		if(pPos)
 		{
 			p = *pPos;
-			SetStone(p.x, p.y, stone);
-			if(1 == isOpenFour(p.x, p.y, stone, direction, true))
+			SetStone(p.x, p.y, stone);// 한 수를 더 놓았을 때 
+			if(1 == isOpenFour(p.x, p.y, stone, direction, true))// 오픈 4가 되어야 오픈 3이다. 
 			{
-				if(!ForbiddenPoint(p.x, p.y, stone))
+				if(!ForbiddenPoint(p.x, p.y, stone)) // 그 자리가 금수자리가 아니어 한다. 
 				{
 					SetStone(p.x, p.y, Empty);
 					return true;
@@ -137,11 +137,11 @@ short CRule::isOpenFour(short x, short y, short stone, short direction, bool isC
 		p = FindEmptyPoint(x, y, stone, direction * 2 + i);
 		if(p && isFive(p->x, p->y, stone, direction)) ++cnt;
 	}
-	if(cnt == 2) 
+	if(cnt == 2) // 양쪽 모두에서 5가 되어야 오픈 4이다. 
 	{
-		if(4 == GetStoneCount(x, y, stone, direction)) --cnt;
+		if(4 == GetStoneCount(x, y, stone, direction)) --cnt; // 한 줄에서 44가 나올 수 있으므로 44가 아닌지 검사가 필요 
 	}
-	else cnt = 0;
+	else cnt = 0; // 카운트가 2가 아니면 오픈4가 아니므로 카운트는 0 
 	
 	return cnt;
 }
@@ -152,7 +152,7 @@ bool CRule::isFour(short x, short y, short stone, short direction)
 	for(int i = 0; i < 2; ++i)
 	{
 		p = FindEmptyPoint(x, y, stone, direction * 2 + i);
-		if(p && isFive(p->x, p->y, stone, direction)) return true;
+		if(p && isFive(p->x, p->y, stone, direction)) return true;// 한 수를 더 놓았을 때 5가 되면 4이다. 
 	}
 	return false;
 }
