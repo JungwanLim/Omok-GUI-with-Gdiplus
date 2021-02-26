@@ -2,6 +2,5 @@
 
 To compile in DEV C ++, you must change the settings as shown below.
 
-!(./screenshot/Devcsetting_LI.jpg)
-
-!(./screenshot/Devcsetting1_LI.jpgg)
+![Dev C++ Project Option](./Screenshot/Devcsetting1_LI.jpg)  
+![Dev C++ Project Option](./Screenshot/Devcsetting_LI.jpg)
