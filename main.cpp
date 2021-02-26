@@ -1,38 +1,9 @@
-#include "Draw.h"
+#include "Omok.h"
 
 HINSTANCE hInst;
 HMENU hMenu;
 CDraw draw;
-
-/*
-BYTE Opa=128;
-void OnPaint(HDC hdc)
-{
-	Graphics G(hdc);
-	Image *pBoard, *pBlack, *pWhite, *pForbidden, *pBlack_a;
-	pBoard = Image::FromFile(L".\\Image\\board.png");
-	pBlack = Image::FromFile(L".\\Image\\Black.png");
-	pBlack_a = Image::FromFile(L".\\Image\\Black_a.png");
-	pWhite = Image::FromFile(L".\\Image\\White.png");
-	pForbidden = Image::FromFile(L".\\Image\\forbidden.png");
-
-	G.SetInterpolationMode(InterpolationModeHighQualityBilinear);
-	G.DrawImage(pBoard,0,0);
-	G.DrawImage(pBlack,49 - 32,35, 30, 30);
-	G.DrawImage(pWhite,49,67, 30, 30);
-	G.DrawImage(pForbidden,49,99);
-	G.DrawImage(pWhite,49 + 32 * 10,131 + 32 * 10, 30, 30);
-	G.DrawImage(pWhite,81,99, 30, 30);
-	G.DrawImage(pBlack,17,99 + 32 * 11, 30, 30);
-	G.DrawImage(pForbidden,49 + 32*5 ,99);
-	G.DrawImage(pBlack_a,49 + 64 + 32*5 ,99);
-	delete pBoard;
-	delete pBlack;
-	delete pWhite;
-	delete pForbidden;
-	delete pBlack_a;
-}
-*/
+COmok omok(&draw);
 
 BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -44,6 +15,8 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
     case WM_INITDIALOG:
     {
+	    draw.SetHwnd(hwndDlg);
+	    omok.SetHwnd(hwndDlg);
     }
     return TRUE;
 
@@ -53,6 +26,14 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     }
     return TRUE;
+    
+    case WM_LBUTTONUP:
+	{
+		short xPos = LOWORD(lParam);
+		short yPos = HIWORD(lParam);
+		omok.PutStone(Position(xPos, yPos));
+		return 0;
+	}
 
     case WM_COMMAND:
     {

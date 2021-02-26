@@ -5,9 +5,35 @@
 #include <commctrl.h>
 #include <gdiplus.h>
 #include <iostream>
+#include <vector>
 #include "resource.h"
 
+#pragma comment(lib,"comctl32")
+#pragma comment(lib,"gdiplus")
+#pragma warning(disable : 4996)
+
 using namespace Gdiplus;
+using namespace std;
+
+struct Position{
+	int x, y;
+
+	Position() {}
+
+	Position(short x, short y):x(x), y(y)
+	{
+	}
+
+	bool operator ==(const Position &P) const 
+	{
+		return (x == P.x && y == P.y);
+	}
+
+	bool operator !=(const Position &P) const
+	{
+		return (x != P.x || y != P.y);
+	}
+};
 
 class CGdiPlusStarter
 {
@@ -32,18 +58,27 @@ class CDraw{
 		Image *pWhite;
 		Image *pForbidden;
 		Image *pBlack_a;	
-		Image *pWhite_a;	
+		Image *pWhite_a;
+		Image *pImages[5];
 
 		CGdiPlusStarter g_gps;
+		Graphics *pGraphic;
+		CachedBitmap *pCBit;
+		HWND hwndDlg;
 
+		vector<Position> coords;
+		
 	public :
 		CDraw();
 		~CDraw();
 		
-		void DrawStone(int x, int y, int type);
+		void DrawStone(short x, short y, short type);
 		void DrawBoard();
 		void OnPaint(HDC hdc);
+		void SetHwnd(HWND hwndDlg);
+		void UpdateBoard();
 		bool InitGdiplus();
 		
+		vector<Position>* GetCoords() { return &coords; }
 };
 #endif

@@ -31,27 +31,47 @@ bool CDraw::InitGdiplus()
 	return true;
 }
 
-void CDraw::DrawBoard()
+void CDraw::SetHwnd(HWND hwndDlg)
 {
-	
+	this->hwndDlg = hwndDlg;
 }
 
-void CDraw::DrawStone(int x, int y, int type)
+void CDraw::UpdateBoard()
 {
+	Graphics G(hwndDlg);
+	Bitmap pBit(500, 500, &G);
+	Graphics memG(&pBit);
+	
+	memG.DrawImage(pBoard,0,0);
+	for(auto& p : coords)
+	{
+		memG.DrawImage(pBlack, p.x, p.y);
+	}
+	
+	if (pCBit) 
+	{
+	  delete pCBit;
+	  //MessageBox(hwndDlg, "Deleted", "Test", MB_OK);
+	}
+	pCBit=new CachedBitmap(&pBit,&G);
+	InvalidateRect(hwndDlg,NULL,FALSE);
+}
+
+void CDraw::DrawBoard()
+{
+	pGraphic->DrawImage(pBoard,0,0);
+}
+
+void CDraw::DrawStone(short x, short y, short type)
+{
+	pGraphic->DrawImage(pBlack, x, y);
 }
 
 void CDraw::OnPaint(HDC hdc)
 {
-	Graphics G(hdc);
-
-	G.SetInterpolationMode(InterpolationModeHighQualityBilinear);
-	G.DrawImage(pBoard,0,0);
-	G.DrawImage(pBlack,49 - 32,35, 30, 30);
-	G.DrawImage(pWhite,49,67, 30, 30);
-	G.DrawImage(pForbidden,49,99);
-	G.DrawImage(pWhite,49 + 32 * 10,131 + 32 * 10, 30, 30);
-	G.DrawImage(pWhite,81,99, 30, 30);
-	G.DrawImage(pBlack,17,99 + 32 * 11, 30, 30);
-	G.DrawImage(pForbidden,49 + 32*5 ,99);
-	G.DrawImage(pBlack_a,49 + 64 + 32*5 ,99);
+    Graphics G(hdc);
+	if (pCBit == NULL) {
+	  UpdateBoard();
+	}
+    G.DrawCachedBitmap(pCBit,0,0);
 }
